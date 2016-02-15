@@ -1,79 +1,114 @@
+package main;
 
-
-import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.net.ServerSocket;
+import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Chat server runner.
  */
-public class Server extends ServerSocket {
+public class Server {
 
     /**
      * Start a chat server.
      */
 	
-	private static final int severPort = 8907;
-	public Server() throws IOException {
-		super(severPort);
-		try{
-			while(true){
-				Socket socket = accept();
-				new startNewServerThread(socket);
-			}
-		}catch (Exception e){
-			
-		}finally {
-			close();
-		}
-	}
+	ServerSocket serverSocket = null;
+	Socket cSocket = null;
 	
-	class startNewServerThread extends Thread{
+	DataInputStream in;
+	DataOutputStream out;
+	
+	List<clientThread> clientList = new ArrayList<clientThread>();
 		
-		private Socket client;
-		private BufferedReader bufferedReader;
-		private PrintWriter printWriter;
-		
-	    public startNewServerThread(Socket socket)throws IOException {
-			// TODO Auto-generated method stub
-			client = socket;
-			
-			bufferedReader = new BufferedReader (new InputStreamReader(client.getInputStream()));
-			printWriter = new PrintWriter (client.getOutputStream(), true);
-			
-			System.out.println("Client(" + getName() +") come in...");
-			
-			start();
-		}
-	    
-	    public void run(){
-	    	try{
-	    		String line = bufferedReader.readLine();
-	    		
-	    		while(!line.equals("exit")){
-	    			printWriter.println("continue, Client(" + getName() +")!");
-	    			
-	    			System.out.println("Client(" + getName() +") say: " + line);
-	    			line = bufferedReader.readLine();
-	    		}
-	    		printWriter.println("Client(" + getName() +") exit!");
-	    	
-	    		System.out.println("Client(" + getName() +") exit!");
-                printWriter.close();
-                bufferedReader.close();
-                client.close();               
-	    }catch (Exception e){
-	    	
-	    }
-	}
-	}
-	public static void main(String[] args)throws IOException {
+    public static void main(String[] args) {
         // YOUR CODE HERE
         // It is not required (or recommended) to implement the server in
         // this runner class.
-    	new Server();
+    	new Server().start();
     }
+    
+    public void start(){
+		try {
+			serverSocket = new ServerSocket(8908);
+System.out.println("Server started!");
+			while (true){
+				cSocket = serverSocket.accept();
+				
+				clientThread c = new clientThread(cSocket);
+System.out.print("A client connected!\n");
+
+				new Thread(c).start();
+				
+				clientList.add(c);
+				}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}finally{
+			try {
+				serverSocket.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}			
+		}
+	}
+    
+    class clientThread implements Runnable{
+    	
+    	private Socket s;
+    	private DataInputStream myIn = null;
+    	private DataOutputStream myOut = null;
+    	
+    	
+    	public clientThread(Socket s){
+    		this.s = s;
+    		try {
+				myIn = new DataInputStream (s.getInputStream());
+				myOut = new DataOutputStream(s.getOutputStream());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+    	}
+    	
+    	public void sendMsg(String msg)throws SocketException{
+    		try {
+				myOut.writeUTF(msg);
+				//myOut.flush();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+    	}
+    	
+		public void run() {
+			clientThread c=null;
+			try{				
+			while (true){
+				String msg = myIn.readUTF();
+System.out.println(msg);		
+				for (int i=0;i<clientList.size(); i++){
+					c = clientList.get(i);
+					c.sendMsg(msg);
+				}
+		}
+	}catch (SocketException e){
+		if (c!=null) clientList.remove(this);
+	}catch (EOFException e){
+		System.out.println("Client exited!");
+	}catch (IOException e){
+		e.printStackTrace();
+	}finally{
+		try {
+			if(myIn!=null) myIn.close();
+			if(myOut!=null)myOut.close();
+			if(s!=null) s.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
+   }
+}
 }
