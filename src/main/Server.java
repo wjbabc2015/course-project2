@@ -35,17 +35,22 @@ public class Server {
     	new Server().start();
     }
     
-    //Start the server 
+    /*
+     * Start server
+     * Prepare the server for client connecting
+     * Monitor client connecting, and start a new thread for each client connection
+     * Add new thread in client list 
+     */
     public void start(){
 		try {
 			serverSocket = new ServerSocket(8908);//Define server socket with port number
-System.out.println("Server started!");
+//System.out.println("Server started!");
 			while (true){ 
 				//Monitor client request, start client thread to issue
 				cSocket = serverSocket.accept();
 				
 				clientThread c = new clientThread(cSocket);
-System.out.print("A client connected!\n");
+//System.out.print("A client connected!\n");
 				
 
 				new Thread(c).start();//Start the client thread
@@ -83,6 +88,7 @@ System.out.print("A client connected!\n");
     	/**
     	 * Initialize I/O stream
     	 * @param s socket for client
+    	 * return a new thread
     	 */
     	public clientThread(Socket s){
     		this.s = s; 		
@@ -109,6 +115,11 @@ System.out.print("A client connected!\n");
 			}
     	}
     	
+    	/*
+    	 * Client thread start, and get all past message from the message list
+    	 * Put message in message list, and send to all clients which are connected to server
+    	 * @see java.lang.Runnable#run()
+    	 */
 		public void run() {
 			clientThread c=null;
 			try{
@@ -126,7 +137,7 @@ System.out.print("A client connected!\n");
 				
 				while (true){
 					String msg = myIn.readUTF();//Get data stream from client
-System.out.println(msg);
+//System.out.println(msg);
 				
 					messageList.add(msg);
 				
@@ -145,6 +156,7 @@ System.out.println(msg);
 			}catch (IOException e){
 				e.printStackTrace();
 			}finally{
+				//When exception is caught, close all I/O stream and socket
 				try {
 					if(myIn!=null) myIn.close();
 					if(myOut!=null)myOut.close();

@@ -41,7 +41,6 @@ public class Client {
 /**
  * Create simple login frame 
  * @author Jeremy Wang
- *@return string name to class chatFrame
  */
 class loginFrame extends JFrame implements ActionListener{
 	String name = "";
@@ -53,7 +52,8 @@ class loginFrame extends JFrame implements ActionListener{
 	JButton login;
 
 	/**
-	 * create the login frame
+	 * Constructor for loginFrame
+	 * Create a login window to get the nickname, and pass it to chat frame
 	 */
 	public loginFrame(){
 		
@@ -76,7 +76,8 @@ class loginFrame extends JFrame implements ActionListener{
 
 	/**
 	 * Monitor the action of button
-	 * @param e to get action event
+	 * @param e action event, which reflects the action of login button
+	 * Initialize the chat window with nickname, and close the login window
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -113,9 +114,8 @@ class chatFrame extends JFrame{
 	String sendMsg = "";
 	
 	/**
-	 * Create the chat frame
+	 * Constructor for chat frame
 	 * @param n string for getting name from login frame
-	 * @return a chat frame GUI
 	 */
 	public chatFrame(String n){
 		name = n;
@@ -166,7 +166,11 @@ class chatFrame extends JFrame{
 		new Thread(new recieveMsg()).start();//Each time a connection is built, start a new thread to hold the connection
 	}
 	
-	//Define the msgListener class for enter key and button action
+	/*
+	 * Implement ActionListener for message sending method
+	 * Display message in text area of chat window, put it in data output stream, 
+	 * and clean the text field for input after message sending
+	 */
 	private class msgListener implements ActionListener{
 		
 		//Rewrite the actionPerformed method to adjust the message sending function
@@ -208,7 +212,12 @@ class chatFrame extends JFrame{
 	}
 */	
 	
-	//Connect to the server, define the I/O stream function
+
+	/*
+	 * Connect client to the server
+	 * Set up IP and port of client, build up input and output stream
+	 * Return message for connection status
+	 */
 	public void startConnection(){
 		try {
 			msgRec.setText("Connecting server...\n");
@@ -225,7 +234,9 @@ class chatFrame extends JFrame{
 		}
 	}
 	
-	//Disconnect the socket and I/O stream
+	/*
+	 * Disconnect client to server
+	 */
 	public void close(){
 		try {
 			in.close();
