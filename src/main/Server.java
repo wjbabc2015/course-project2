@@ -35,12 +35,12 @@ public class Server {
     	new Server().start();
     }
     
-    /*
+    /**
      * Start server
      * Prepare the server for client connecting
      * Monitor client connecting, and start a new thread for each client connection
      * Add new thread in client list 
-     */
+     **/
     public void start(){
 		try {
 			serverSocket = new ServerSocket(8908);//Define server socket with port number
@@ -102,7 +102,7 @@ public class Server {
     	
     	/**
     	 * Send message method 
-    	 * @param msg string of data
+    	 * @param msg string of words. requires not null
     	 * @throws SocketException
     	 * Allow server to send message to every client
     	 */

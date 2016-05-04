@@ -52,7 +52,7 @@ class loginFrame extends JFrame implements ActionListener{
 	JButton login;
 
 	/**
-	 * Constructor for loginFrame
+	 * Creator for loginFrame
 	 * Create a login window to get the nickname, and pass it to chat frame
 	 */
 	public loginFrame(){
@@ -114,8 +114,8 @@ class chatFrame extends JFrame{
 	String sendMsg = "";
 	
 	/**
-	 * Constructor for chat frame
-	 * @param n string for getting name from login frame
+	 * Creator for chat frame
+	 * @param n string of words. requires not null
 	 */
 	public chatFrame(String n){
 		name = n;
@@ -144,7 +144,7 @@ class chatFrame extends JFrame{
 		send.addActionListener(new msgListener());//Create button action listener
 		msgSend.addActionListener(new msgListener());//Create enter key action listener
 		
-		//Define window action
+		//Rewrite window action, add server connection and new thread start methods
 		this.addWindowListener(new WindowAdapter(){
 			
 			//Rewrite the windowClosing method to add close method
@@ -166,11 +166,11 @@ class chatFrame extends JFrame{
 		new Thread(new recieveMsg()).start();//Each time a connection is built, start a new thread to hold the connection
 	}
 	
-	/*
+	/**
 	 * Implement ActionListener for message sending method
 	 * Display message in text area of chat window, put it in data output stream, 
 	 * and clean the text field for input after message sending
-	 */
+	 **/
 	private class msgListener implements ActionListener{
 		
 		//Rewrite the actionPerformed method to adjust the message sending function
@@ -213,11 +213,11 @@ class chatFrame extends JFrame{
 */	
 	
 
-	/*
+	/**
 	 * Connect client to the server
 	 * Set up IP and port of client, build up input and output stream
 	 * Return message for connection status
-	 */
+	 **/
 	public void startConnection(){
 		try {
 			msgRec.setText("Connecting server...\n");
@@ -234,9 +234,9 @@ class chatFrame extends JFrame{
 		}
 	}
 	
-	/*
+	/**
 	 * Disconnect client to server
-	 */
+	 **/
 	public void close(){
 		try {
 			in.close();
@@ -249,10 +249,10 @@ class chatFrame extends JFrame{
 	}
 	
 	/**
-	 * RecieveMsg thread class is created for monitoring the message sent from server
+	 * Implement runnable class for receiving message
 	 * @author Jeremy Wang
 	 * Display the message recieved from server on the text area
-	 */
+	 **/
 	private class recieveMsg implements Runnable{
 
 
